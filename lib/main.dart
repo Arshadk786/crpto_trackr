@@ -1,8 +1,21 @@
+import 'dart:convert';
+import 'package:crpto_trackr/models/app_api.dart';
 import 'package:flutter/material.dart';
 import 'package:crpto_trackr/pages/home.dart';
+import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await loadContent();
   runApp(const MyApp());
+}
+
+Future<void> loadContent() async {
+  String content = await rootBundle.loadString("assets/config/main.json");
+  Map apiData = jsonDecode(content);
+  GetIt.instance
+      .registerSingleton<Api>(Api(apiUrl: apiData["COIN_GECKO_API_URL"]));
 }
 
 class MyApp extends StatelessWidget {
