@@ -1,7 +1,6 @@
 import 'dart:convert';
-import 'dart:ui';
-
 import 'package:crpto_trackr/models/http.dart';
+import 'package:crpto_trackr/pages/details.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -16,6 +15,7 @@ class HomePage extends StatefulWidget {
 class HomeState extends State<HomePage> {
   late double deviceHeight, deviceWidth;
   HttpService? http;
+  String currentCoin = "bitcoin";
   @override
   void initState() {
     super.initState();
@@ -43,7 +43,14 @@ class HomeState extends State<HomePage> {
   }
 
   Widget coinDropdown() {
-    List<String> coins = ["bitcoin"];
+    // return FutureBuilder(
+    // future: Dio().get("/coins/list"),
+    // builder: ((context, snapshot) {
+    // if (snapshot.hasData) {
+    // Map coinList = jsonDecode(snapshot.data.toString());
+    List<String> coins = ["bitcoin", "ethereum", "dogecoin"];
+    // coins.addAll(coinList["name"]);
+    // print(coins);
     List<DropdownMenuItem> items = coins
         .map((e) => DropdownMenuItem(
             value: e,
@@ -56,11 +63,16 @@ class HomeState extends State<HomePage> {
               ),
             )))
         .toList();
+    currentCoin = coins.first;
     return DropdownButton(
-      value: coins.first,
       items: items,
-      onChanged: (value) {},
-      dropdownColor: const Color(0xffD4D4D4),
+      onChanged: (current) {
+        setState(() {
+          currentCoin = current;
+        });
+      },
+      value: currentCoin,
+      dropdownColor: const Color(0xff4836b9),
       iconSize: 30,
       icon: const Icon(
         Icons.arrow_drop_down_sharp,
@@ -68,11 +80,18 @@ class HomeState extends State<HomePage> {
       ),
       underline: Container(),
     );
+    // } else {
+    //   return const CircularProgressIndicator(
+    //     color: Colors.white70,
+    //   );
+    // }
+    // }),
+    // );
   }
 
   Widget _coinDetails() {
     return FutureBuilder(
-      future: http!.get("/coins/bitcoin"),
+      future: http!.get("/coins/$currentCoin"),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
           Map data = jsonDecode(snapshot.data.toString());
@@ -92,7 +111,7 @@ class HomeState extends State<HomePage> {
         } else {
           return const Center(
               child: CircularProgressIndicator(
-            color: Colors.white,
+            color: Colors.white70,
           ));
         }
       },
@@ -116,13 +135,21 @@ class HomeState extends State<HomePage> {
   }
 
   Widget _coinImage(String imageURL) {
-    return Container(
-      height: deviceHeight * 0.20,
-      width: deviceWidth * 0.20,
-      padding: EdgeInsets.symmetric(vertical: deviceHeight * 0.05),
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: NetworkImage(imageURL),
+    return GestureDetector(
+      onDoubleTap: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (BuildContext context) {
+          return const Details();
+        }));
+      },
+      child: Container(
+        height: deviceHeight * 0.20,
+        width: deviceWidth * 0.20,
+        padding: EdgeInsets.symmetric(vertical: deviceHeight * 0.05),
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: NetworkImage(imageURL),
+          ),
         ),
       ),
     );

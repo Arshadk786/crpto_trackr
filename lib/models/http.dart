@@ -16,10 +16,10 @@ class HttpService {
     try {
       String url = "$baseUrl$path";
       Response response = await dio.get(url);
-      print(response);
+      // print(response);
       return response;
     } catch (e) {
-      print(e);
+      // print(e);
     }
   }
 }
