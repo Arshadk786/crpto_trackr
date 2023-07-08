@@ -16,6 +16,7 @@ class HomeState extends State<HomePage> {
   late double deviceHeight, deviceWidth;
   HttpService? http;
   String currentCoin = "bitcoin";
+
   @override
   void initState() {
     super.initState();
@@ -48,7 +49,13 @@ class HomeState extends State<HomePage> {
     // builder: ((context, snapshot) {
     // if (snapshot.hasData) {
     // Map coinList = jsonDecode(snapshot.data.toString());
-    List<String> coins = ["bitcoin", "ethereum", "dogecoin"];
+    List<String> coins = [
+      "bitcoin",
+      "ethereum",
+      "tether",
+      "solana",
+      "dogecoin"
+    ];
     // coins.addAll(coinList["name"]);
     // print(coins);
     List<DropdownMenuItem> items = coins
@@ -63,7 +70,6 @@ class HomeState extends State<HomePage> {
               ),
             )))
         .toList();
-    currentCoin = coins.first;
     return DropdownButton(
       items: items,
       onChanged: (current) {
@@ -97,12 +103,14 @@ class HomeState extends State<HomePage> {
           Map data = jsonDecode(snapshot.data.toString());
           num inr = data["market_data"]["current_price"]["inr"];
           num change = data["market_data"]["price_change_percentage_24h"];
+          num priceChange = data["market_data"]["price_change_24h_in_currency"];
+          Map rates = data["market_data"]["current_price"];
           return Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _coinImage(data["image"]["large"]),
+              _coinImage(data["image"]["large"], rates, priceChange),
               _currentPrice(inr),
               _percentageChange(change),
               _coinDescription(data["description"]["en"])
@@ -134,12 +142,15 @@ class HomeState extends State<HomePage> {
     );
   }
 
-  Widget _coinImage(String imageURL) {
+  Widget _coinImage(String imageURL, Map rates, num priceChange) {
     return GestureDetector(
       onDoubleTap: () {
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
-          return const Details();
+          return Details(
+            rates: rates,
+            change: priceChange,
+          );
         }));
       },
       child: Container(
