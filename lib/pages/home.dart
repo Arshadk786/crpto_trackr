@@ -103,7 +103,7 @@ class HomeState extends State<HomePage> {
           Map data = jsonDecode(snapshot.data.toString());
           num inr = data["market_data"]["current_price"]["inr"];
           num change = data["market_data"]["price_change_percentage_24h"];
-          num priceChange = data["market_data"]["price_change_24h_in_currency"];
+          Map priceChange = data["market_data"]["price_change_24h_in_currency"];
           Map rates = data["market_data"]["current_price"];
           return Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -142,14 +142,14 @@ class HomeState extends State<HomePage> {
     );
   }
 
-  Widget _coinImage(String imageURL, Map rates, num priceChange) {
+  Widget _coinImage(String imageURL, Map rates, Map priceChange) {
     return GestureDetector(
       onDoubleTap: () {
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
           return Details(
             rates: rates,
-            change: priceChange,
+            priceChange: priceChange,
           );
         }));
       },

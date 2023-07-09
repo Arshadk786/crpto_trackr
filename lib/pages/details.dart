@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 
 class Details extends StatelessWidget {
   final Map rates;
-  final num change;
-  const Details({required this.rates, required this.change});
+  final Map priceChange;
+  const Details({required this.rates, required this.priceChange});
   @override
   Widget build(BuildContext context) {
     List currencies = rates.keys.toList();
     List exchangeRates = rates.values.toList();
+    List priceChangeCurrencies = priceChange.values.toList();
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -26,6 +27,7 @@ class Details extends StatelessWidget {
             itemBuilder: (context, index) {
               String currency = currencies[index].toString().toUpperCase();
               String exchange = exchangeRates[index].toString();
+              String change = priceChangeCurrencies[index].toString();
               return ListTile(
                 title: Text(
                   "$currency : $exchange",
@@ -34,7 +36,10 @@ class Details extends StatelessWidget {
                     color: Colors.white70,
                   ),
                 ),
-                subtitle: Text("$change %"),
+                subtitle: Text(
+                  "$change %",
+                  style: const TextStyle(color: Colors.white54),
+                ),
               );
             }),
       ),
