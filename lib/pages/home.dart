@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:crpto_trackr/models/http.dart';
 import 'package:crpto_trackr/pages/details.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -15,7 +16,7 @@ class HomePage extends StatefulWidget {
 class HomeState extends State<HomePage> {
   late double deviceHeight, deviceWidth;
   HttpService? http;
-  String currentCoin = "bitcoin";
+  String currentCoin = "01coin";
 
   @override
   void initState() {
@@ -44,55 +45,62 @@ class HomeState extends State<HomePage> {
   }
 
   Widget coinDropdown() {
-    // return FutureBuilder(
-    // future: Dio().get("/coins/list"),
-    // builder: ((context, snapshot) {
-    // if (snapshot.hasData) {
-    // Map coinList = jsonDecode(snapshot.data.toString());
-    List<String> coins = [
-      "bitcoin",
-      "ethereum",
-      "tether",
-      "solana",
-      "dogecoin"
-    ];
-    // coins.addAll(coinList["name"]);
-    // print(coins);
-    List<DropdownMenuItem> items = coins
-        .map((e) => DropdownMenuItem(
-            value: e,
-            child: Text(
-              e,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
+    return FutureBuilder(
+      future: http!.get("/coins/list"),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          var response = snapshot.data;
+          var body = response!.data;
+          List<dynamic> coinList = List.from(body);
+          List<Map<String, dynamic>> coinss =
+              coinList.cast<Map<String, dynamic>>();
+          List<String> coins = ["01coin"];
+          for (var i = 1; i < coinss.length; i++) {
+            coins.add(coinss[i]["id"]);
+          }
+          List<DropdownMenuItem<String>> items = coins
+              .map((e) => DropdownMenuItem<String>(
+                    value: e,
+                    child: Text(
+                      e,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12, 
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ))
+              .toList();
+          return IntrinsicWidth(
+            child: SizedBox(
+              height: 40, 
+              child: DropdownButton<String>(
+                menuMaxHeight: deviceHeight *
+                    0.40, 
+                items: items,
+                onChanged: (dynamic current) {
+                  setState(() {
+                    currentCoin = current;
+                  });
+                },
+                value: currentCoin,
+                dropdownColor: Colors.black45,
+                iconSize: 30,
+                icon: const Icon(
+                  Icons.arrow_drop_down_sharp,
+                  color: Color(0xffD4D4D4),
+                ),
+                underline: Container(),
               ),
-            )))
-        .toList();
-    return DropdownButton(
-      items: items,
-      onChanged: (current) {
-        setState(() {
-          currentCoin = current;
-        });
+            ),
+          );
+        } else {
+          return const CircularProgressIndicator(
+            color: Colors.white70,
+          );
+        }
       },
-      value: currentCoin,
-      dropdownColor: const Color(0xff4836b9),
-      iconSize: 30,
-      icon: const Icon(
-        Icons.arrow_drop_down_sharp,
-        color: Color(0xffD4D4D4),
-      ),
-      underline: Container(),
     );
-    // } else {
-    //   return const CircularProgressIndicator(
-    //     color: Colors.white70,
-    //   );
-    // }
-    // }),
-    // );
   }
 
   Widget _coinDetails() {
